@@ -282,7 +282,7 @@ function readHash() {
 
 function optionList(selectedId) {
   const none = `<option value=""${selectedId === "" ? " selected" : ""}>— None —</option>`;
-  const custom = `<option value="custom"${selectedId === "custom" ? " selected" : ""}>Custom geometry…</option>`;
+  const custom = `<option value="custom"${selectedId === "custom" ? " selected" : ""}>Your Bike…</option>`;
   let mineGroup = "";
   if (state.myBikes.length) {
     mineGroup = `<optgroup label="My bikes">`;
@@ -308,7 +308,7 @@ function optionList(selectedId) {
     }
     bikes += `</optgroup>`;
   }
-  return none + mineGroup + bikes + custom;
+  return none + custom + mineGroup + bikes;
 }
 
 function escapeHtml(value) {
