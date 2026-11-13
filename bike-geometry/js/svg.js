@@ -503,6 +503,7 @@ export function generateSVG(computedBikes, settings = {}) {
     </pattern>
 </defs>
 
+<rect width="100%" height="100%" fill="#fff"/>
 <rect width="100%" height="100%" fill="url(#grid)"/>
 
 <line id="ground" x1="0" y1="${groundY}" x2="${S.WINDOW_WIDTH}" y2="${groundY}" stroke="black" stroke-width="5px" />
