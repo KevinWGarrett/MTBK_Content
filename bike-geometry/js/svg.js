@@ -359,7 +359,7 @@ function madeBy(settings, height) {
   return `<!-- madeby -->
     <g transform="translate(${x},${y})">
         <text style="font-family: ${esc(settings.FONT_FAMILY)}; font-size: ${settings.MADEBY_FONT_SIZE}px;" transform="matrix(1, 0, 0, 1, 0, 0)">
-        Bike Geometry Comparison by Kevin Garrett
+        Bike Geometry Comparison by Mountain Biking Knowledge
         </text>
     </g>
         `;
