@@ -102,7 +102,7 @@ export function svgToDataUrl(svgText) {
 }
 
 const FRIENDLY_FAIL =
-  "Couldn't create the PNG. Try Download SVG, or use a smaller canvas in Drawing settings.";
+  "Couldn't create the PNG. Try a smaller canvas in Drawing settings.";
 
 /**
  * Draw an SVG document to a PNG blob at the chosen scale.

@@ -12,7 +12,7 @@ import {
   normalizeAlign,
   DEFAULT_ALIGN,
 } from "./geometry.js";
-import { generateSVG, suggestedFilename } from "./svg.js";
+import { generateSVG } from "./svg.js";
 import { rasterizeSvgToPng, suggestedPngFilename, PNG_FRIENDLY_FAIL } from "./png.js";
 import {
   savedBikeName,
@@ -404,7 +404,6 @@ function renderSettings() {
   } else {
     blend.value = state.settings.BLEND_MODE;
   }
-  document.getElementById("setting-zoom").value = state.settings.ZOOM_SCALE;
   document.getElementById("setting-width").value = state.settings.WINDOW_WIDTH;
   document.getElementById("setting-height").value = state.settings.WINDOW_HEIGHT;
   document.getElementById("setting-ground").value = state.settings.GROUND_LEVEL;
@@ -467,9 +466,7 @@ function renderPreview() {
 }
 
 function setDownloadEnabled(on) {
-  const svgBtn = document.getElementById("btn-download");
   const pngBtn = document.getElementById("btn-download-png");
-  if (svgBtn) svgBtn.disabled = !on;
   if (pngBtn) pngBtn.disabled = !on;
 }
 
@@ -497,7 +494,6 @@ function bind() {
       refresh();
     });
   };
-  numSetting("setting-zoom", "ZOOM_SCALE", DEFAULTS.ZOOM_SCALE);
   numSetting("setting-width", "WINDOW_WIDTH", DEFAULTS.WINDOW_WIDTH);
   numSetting("setting-height", "WINDOW_HEIGHT", DEFAULTS.WINDOW_HEIGHT);
   numSetting("setting-ground", "GROUND_LEVEL", DEFAULTS.GROUND_LEVEL);
@@ -506,7 +502,6 @@ function bind() {
     refresh();
   });
 
-  document.getElementById("btn-download").addEventListener("click", downloadSvg);
   document.getElementById("btn-download-png").addEventListener("click", downloadPng);
   document.getElementById("btn-share").addEventListener("click", copyShareLink);
   document.getElementById("btn-reset").addEventListener("click", () => {
@@ -762,14 +757,6 @@ function triggerDownload(blob, filename) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-function downloadSvg() {
-  const { computed, settings } = currentComputed();
-  if (!computed.length) return;
-  const text = generateSVG(computed, settings);
-  const blob = new Blob([text], { type: "image/svg+xml;charset=utf-8" });
-  triggerDownload(blob, suggestedFilename(computed));
 }
 
 async function downloadPng() {
