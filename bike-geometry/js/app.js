@@ -125,6 +125,36 @@ function bikeLabel(bike) {
   return [model, size].filter(Boolean).join(", ");
 }
 
+// Frame sizes sort small to large so the sizes of one model sit together.
+// Specialized S1–S6 sort by number; letter sizes by this list; anything
+// unrecognised keeps its catalog order after the known sizes.
+const SIZE_RANK = { XXS: 0, XS: 1, S: 2, SM: 2, M: 3, MD: 3, ML: 3.5, XM: 3.5, L: 4, LG: 4, XL: 5, XXL: 6 };
+
+function sizeRank(bike) {
+  const size = String(bike.frame_size || "").trim().toUpperCase();
+  const spec = /^S(\d)$/.exec(size);
+  if (spec) return Number(spec[1]);
+  return size in SIZE_RANK ? SIZE_RANK[size] : 99;
+}
+
+// Within a category: models in first-appearance order, each model's sizes small to large.
+function sortCatalogGroup(items) {
+  const modelOrder = new Map();
+  items.forEach((b) => {
+    const key = (b.model || "").trim();
+    if (!modelOrder.has(key)) modelOrder.set(key, modelOrder.size);
+  });
+  return items
+    .map((b, i) => ({ b, i }))
+    .sort(
+      (x, y) =>
+        modelOrder.get((x.b.model || "").trim()) - modelOrder.get((y.b.model || "").trim()) ||
+        sizeRank(x.b) - sizeRank(y.b) ||
+        x.i - y.i
+    )
+    .map((x) => x.b);
+}
+
 function findCatalog(id) {
   return state.catalog.find((b) => b.id === id) || null;
 }
@@ -303,7 +333,7 @@ function optionList(selectedId) {
     const items = groups.get(cat);
     if (!items || !items.length) continue;
     bikes += `<optgroup label="${escapeAttr(CATEGORY_LABELS[cat])}">`;
-    for (const b of items) {
+    for (const b of sortCatalogGroup(items)) {
       bikes += `<option value="${escapeAttr(b.id)}"${selectedId === b.id ? " selected" : ""}>${escapeHtml(bikeLabel(b))}</option>`;
     }
     bikes += `</optgroup>`;

@@ -242,9 +242,10 @@ for (const [name, bikes] of Object.entries(combos)) {
 }
 
 // Every catalog bike: validation, well-formed SVG, unique IDs, and (for new MTBs) sanity bands.
+// Bands cover the S-to-XXL range now that the catalog carries several sizes per model.
 const SANITY = {
-  reach: [430, 520],
-  stack: [600, 680],
+  reach: [400, 550],
+  stack: [580, 690],
   head_angle: [62, 67],
   seat_tube_angle: [74, 80],
   chainstay_l: [420, 470],
@@ -302,9 +303,37 @@ for (const bike of catalog) {
 
 ok(
   sanityFlags.length === 0,
-  "new bikes sit inside published sanity bands (reach 430-520, stack 600-680, HA 62-67, STA 74-80, CS 420-470)",
+  "new bikes sit inside published sanity bands (reach 400-550, stack 580-690, HA 62-67, STA 74-80, CS 420-470)",
   sanityFlags.join(" | "),
 );
+
+// Size runs: within one model and wheel setup, reach grows and stack never shrinks as size goes up.
+{
+  const RANK = { XXS: 0, XS: 1, S: 2, SM: 2, M: 3, MD: 3, ML: 3.5, XM: 3.5, L: 4, LG: 4, XL: 5, XXL: 6 };
+  const rank = (b) => {
+    const f = String(b.frame_size || "").trim().toUpperCase();
+    const m = /^S(\d)$/.exec(f);
+    return m ? Number(m[1]) : RANK[f];
+  };
+  const runs = new Map();
+  for (const b of shippedCatalog) {
+    if (!b.source_url) continue;
+    const key = `${b.model}|${b.wheel_dia_front_in}/${b.wheel_dia_rear_in}`;
+    if (!runs.has(key)) runs.set(key, []);
+    runs.get(key).push(b);
+  }
+  for (const [key, list] of runs) {
+    if (list.length < 2) continue;
+    list.sort((a, b) => rank(a) - rank(b));
+    ok(list.every((b) => Number.isFinite(rank(b))), `${key} sizes are recognised`, list.map((b) => b.frame_size).join(","));
+    const bad = [];
+    for (let i = 1; i < list.length; i++) {
+      if (!(list[i].reach > list[i - 1].reach)) bad.push(`reach ${list[i - 1].frame_size}->${list[i].frame_size}`);
+      if (!(list[i].stack >= list[i - 1].stack)) bad.push(`stack ${list[i - 1].frame_size}->${list[i].frame_size}`);
+    }
+    ok(bad.length === 0, `${key} reach/stack grow with size`, bad.join("; "));
+  }
+}
 
 // Crank length: default is the original Python 165 mm; a custom value
 // changes only the crank circle, not frame points.
