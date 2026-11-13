@@ -55,8 +55,8 @@ const NAMED_COLORS = {
 
 function defaultSlots() {
   return [
-    { id: "bike_pvk2", color: DEFAULTS.COLORS[0], custom: null },
-    { id: "bike_pvk3", color: DEFAULTS.COLORS[1], custom: null },
+    { id: "bike_sc_megatower2", color: DEFAULTS.COLORS[0], custom: null },
+    { id: "bike_sp_levo4", color: DEFAULTS.COLORS[1], custom: null },
     { id: "", color: DEFAULTS.COLORS[2], custom: null },
   ];
 }
