@@ -139,7 +139,12 @@ function compareComputed(js, ref, label) {
 console.log("Bike Geometry Comparison — JS vs patched Python\n");
 
 const py = runPythonHarness();
-const catalog = JSON.parse(readFileSync(bikesPath, "utf8"));
+const shippedCatalog = JSON.parse(readFileSync(bikesPath, "utf8"));
+// Pole Voima K2/K3 were removed from the shipped catalog but stay as test fixtures
+// because the Python reference uses them.
+const legacyBikes = JSON.parse(readFileSync(join(webRoot, "tests/fixtures/legacy-bikes.json"), "utf8"));
+const catalog = [...legacyBikes, ...shippedCatalog];
+ok(!shippedCatalog.some((b) => b.id === "bike_pvk2" || b.id === "bike_pvk3"), "Pole bikes not in shipped catalog");
 ok(Array.isArray(catalog) && catalog.length >= 7, "catalog loads", `count=${catalog.length}`);
 
 const ORIGINAL_IDS = [
