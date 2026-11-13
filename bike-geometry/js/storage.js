@@ -56,7 +56,7 @@ export function uniqueName(name, existingNames) {
   return candidate;
 }
 
-/** Pick known geometry fields, coerce types, and default crank length. */
+/** Pick known geometry fields and coerce types. A missing crank_length stays unset. */
 export function extractSavedBike(raw) {
   const src = raw && typeof raw === "object" ? raw : {};
   const picked = {};

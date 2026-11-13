@@ -1,5 +1,5 @@
 /**
- * UI for Bike Geometry Comparison.
+ * UI for Bike Geometry Visual Comparator.
  * Loads the catalog, keeps up to three slots, live-renders an SVG, and
  * stores the current setup in the URL hash so it can be shared.
  */
@@ -10,6 +10,7 @@ import {
   coerceBike,
   computeAlignedBikes,
   normalizeAlign,
+  normalizeCrankLength,
   DEFAULT_ALIGN,
 } from "./geometry.js";
 import { generateSVG } from "./svg.js";
@@ -41,7 +42,7 @@ const FIELD_DEFS = [
   { key: "reach", label: "Reach", type: "number", unit: "mm", step: "0.1" },
   { key: "stack", label: "Stack", type: "number", unit: "mm", step: "0.1" },
   { key: "fork_offset", label: "Fork offset", type: "number", unit: "mm", step: "0.1" },
-  { key: "crank_length", label: "Crank length", type: "number", unit: "mm", step: "0.5" },
+  { key: "crank_length", label: "Crank length", type: "number", unit: "mm", step: "1" },
   { key: "seat_tube_angle", label: "Seat tube angle", type: "number", unit: "°", step: "0.1" },
   { key: "head_angle", label: "Head angle", type: "number", unit: "°", step: "0.1" },
   { key: "wheel_dia_front_in", label: "Front wheel", type: "number", unit: "in", step: "0.1" },
@@ -71,6 +72,7 @@ function defaultSettings() {
     GROUND_LEVEL: DEFAULTS.GROUND_LEVEL,
     REAR_WHEEL_X: DEFAULTS.REAR_WHEEL_X,
     ALIGN: DEFAULT_ALIGN,
+    CRANK_LENGTH: DEFAULTS.CRANK_LENGTH,
   };
 }
 
@@ -300,6 +302,7 @@ function readHash() {
       // Old share links may carry per-bike offsets; ignore them and use
       // the alignment choice (default: bottom bracket) instead.
       state.settings.ALIGN = normalizeAlign(state.settings.ALIGN ?? data.set.align);
+      state.settings.CRANK_LENGTH = normalizeCrankLength(state.settings.CRANK_LENGTH);
     }
     return true;
   } catch (err) {
@@ -439,6 +442,8 @@ function renderSettings() {
   document.getElementById("setting-ground").value = state.settings.GROUND_LEVEL;
   const align = document.getElementById("setting-align");
   if (align) align.value = normalizeAlign(state.settings.ALIGN);
+  const crank = document.getElementById("setting-crank");
+  if (crank) crank.value = normalizeCrankLength(state.settings.CRANK_LENGTH);
 }
 
 function currentComputed() {
@@ -529,6 +534,11 @@ function bind() {
   numSetting("setting-ground", "GROUND_LEVEL", DEFAULTS.GROUND_LEVEL);
   document.getElementById("setting-align").addEventListener("change", (e) => {
     state.settings.ALIGN = normalizeAlign(e.target.value);
+    refresh();
+  });
+  document.getElementById("setting-crank").addEventListener("change", (e) => {
+    state.settings.CRANK_LENGTH = normalizeCrankLength(e.target.value);
+    renderSettings();
     refresh();
   });
 

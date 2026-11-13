@@ -1,5 +1,5 @@
 /**
- * Pure geometry for Bike Geometry Comparison.
+ * Pure geometry for Bike Geometry Visual Comparator.
  * Port of bike_geo_classes.py + mymaths.py, with the confirmed bug fixes applied.
  * No DOM. Safe to import from the browser or from Node tests.
  */
@@ -243,6 +243,9 @@ export function computeBike(bike, options = {}, settings = {}) {
     seat_angle: [pyRound(seat_tube_angle_deg + frame_tilt_angle_deg, 1), "Seat Tube Angle"],
     wheelbase: [pyRound(pt_10[0] - pt_1[0], 1), "Wheel Base"],
   };
+  const crank_length = resolveCrankLength(bike, S);
+  // Pedal at the bottom of the stroke, ignoring pedal thickness.
+  specs.pedal_to_ground = [pyRound(specs.bb_height[0] - crank_length, 0), "Pedal to Ground"];
 
   return {
     bikeNumber,
@@ -253,7 +256,7 @@ export function computeBike(bike, options = {}, settings = {}) {
     description: bike.description ?? "",
     notes: String(bike.notes ?? bike.description ?? "").trim(),
     fork_offset,
-    crank_length: resolveCrankLength(bike, S),
+    crank_length,
     input: bike,
     tiltDeg: frame_tilt_angle_deg,
     tiltRad: frame_tilt_angle_rad,
@@ -297,9 +300,24 @@ export function computeBike(bike, options = {}, settings = {}) {
   };
 }
 
+/** Allowed range for the global Crank length setting (mm). */
+export const CRANK_LENGTH_MIN = 120;
+export const CRANK_LENGTH_MAX = 185;
+
+/** Clamp a global crank-length setting; invalid values fall back to 165. */
+export function normalizeCrankLength(value, fallback = DEFAULTS.CRANK_LENGTH) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  if (n < CRANK_LENGTH_MIN) return CRANK_LENGTH_MIN;
+  if (n > CRANK_LENGTH_MAX) return CRANK_LENGTH_MAX;
+  return n;
+}
+
 /**
- * Per-bike crank length in mm. Catalog bikes and older share links that omit
- * the field use the original Python default (CRANK_LENGTH = 165).
+ * Per-bike crank length in mm. An explicit crank_length on the bike (Your Bike…
+ * or a saved My bikes entry that recorded one) wins. Catalog bikes and older
+ * records that omit the field use the global setting (DEFAULTS.CRANK_LENGTH,
+ * originally 165 mm from the Python project).
  */
 export function resolveCrankLength(bike, settings = DEFAULTS) {
   const S = { ...DEFAULTS, ...settings };
@@ -561,8 +579,10 @@ export function coerceBike(raw) {
   out.notes = String(out.notes ?? "").trim();
   // Older share links stored the subtitle in `description`.
   if (!out.notes && out.description.trim()) out.notes = out.description.trim();
+  // Leave a missing or invalid crank_length unset so computeBike can apply
+  // the global CRANK_LENGTH setting. Do not invent 165 here.
   if (out.crank_length === "" || out.crank_length == null || !Number.isFinite(Number(out.crank_length))) {
-    out.crank_length = DEFAULTS.CRANK_LENGTH;
+    delete out.crank_length;
   } else {
     out.crank_length = Number(out.crank_length);
   }

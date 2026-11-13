@@ -1,5 +1,5 @@
 /**
- * SVG generation for Bike Geometry Comparison.
+ * SVG generation for Bike Geometry Visual Comparator.
  * Port of svg_lib.py, svg_templates.py, labels_specs.py, and the run script wrapper.
  *
  * Titles stack vertically (one bike under the next) and wrap to the canvas width.
@@ -302,8 +302,11 @@ function layoutSpecs(bikes, settings, blockY) {
   const afterHeader = (maxNotesLines ? notesLastY + notesSize * 0.4 : headingLastY + headingSize * 0.35);
   // Leave room for the 40px data-row ascent so "Caster" cannot sit inside the notes.
   const dataStartY = afterHeader + 12 + settings.SPECS_FONT_SIZE * 0.9;
-  const extraSpecs = (bike) => [[bike.crank_length, "Crank Length"]];
-  const rowCount = SPEC_ORDER.length + 1;
+  const extraSpecs = (bike) => [
+    [bike.crank_length, "Crank Length"],
+    bike.specs.pedal_to_ground,
+  ];
+  const rowCount = SPEC_ORDER.length + 2;
   const dataBottom =
     dataStartY + (rowCount - 1) * settings.SPECS_FONT_SIZE * settings.LINE_HEIGHT + settings.SPECS_FONT_SIZE * 0.35;
 
@@ -359,7 +362,7 @@ function madeBy(settings, height) {
   const y = height - settings.MADEBY_Y_TWEAK;
   return `<!-- madeby -->
     <g transform="translate(${x},${y})">
-        <text text-anchor="end" style="font-family: ${esc(settings.FONT_FAMILY)}; font-size: ${settings.MADEBY_FONT_SIZE}px;">Bike Geometry Comparison by Mountain Biking Knowledge</text>
+        <text text-anchor="end" style="font-family: ${esc(settings.FONT_FAMILY)}; font-size: ${settings.MADEBY_FONT_SIZE}px;">Bike Geometry Visual Comparator by Mountain Biking Knowledge</text>
     </g>
         `;
 }
@@ -491,7 +494,7 @@ export function generateSVG(computedBikes, settings = {}) {
     `;
   const setUp = `
 <!-- set_up -->
-<title id="svg_document_title">Bike Geometry Comparison</title>
+<title id="svg_document_title">Bike Geometry Visual Comparator</title>
 <defs id="svg_document_defs">
     <pattern id="tenthGrid" width="10" height="10" patternUnits="userSpaceOnUse">
         <path d="M 10 0 L 0 0 0 10" fill="none" stroke="red" stroke-width="1"/>

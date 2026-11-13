@@ -147,7 +147,7 @@ function compareComputed(js, ref, label) {
   return local;
 }
 
-console.log("Bike Geometry Comparison — JS vs patched Python\n");
+console.log("Bike Geometry Visual Comparator — JS vs patched Python\n");
 
 const py = runPythonHarness();
 const shippedCatalog = JSON.parse(readFileSync(bikesPath, "utf8"));
@@ -359,11 +359,49 @@ ok(
   const coerced = coerceBike({ ...pvk2 });
   delete coerced.crank_length;
   const coerced2 = coerceBike(coerced);
-  ok(coerced2.crank_length === DEFAULTS.CRANK_LENGTH, "coerceBike fills the default crank on old share-link data");
+  ok(coerced2.crank_length == null, "coerceBike leaves a missing crank_length unset so the global setting applies");
   const missing = validateBike({ ...pvk2 });
   ok(missing.ok, "catalog bike without crank_length still validates");
   const badCrank = validateBike({ ...pvk2, crank_length: 0 });
   ok(!badCrank.ok && badCrank.errors.crank_length, "crank_length 0 is rejected");
+}
+
+// Global crank setting vs per-bike override, and Pedal to Ground (BB height − crank).
+{
+  const global170 = computeBike(pvk2, { bikeNumber: 1, color: "darkgreen" }, { CRANK_LENGTH: 170 });
+  ok(global170.crank_length === 170, "catalog bike uses the global CRANK_LENGTH setting");
+  ok(
+    global170.specs.pedal_to_ground[0] === global170.specs.bb_height[0] - 170,
+    "pedal-to-ground is BB height minus the global crank length",
+    `${global170.specs.pedal_to_ground[0]} vs ${global170.specs.bb_height[0]} - 170`,
+  );
+  ok(global170.specs.pedal_to_ground[1] === "Pedal to Ground", "pedal-to-ground uses the Pedal to Ground label");
+
+  const override = computeBike({ ...pvk2, crank_length: 175 }, { bikeNumber: 1, color: "darkgreen" }, { CRANK_LENGTH: 170 });
+  ok(override.crank_length === 175, "explicit crank_length overrides the global setting");
+  ok(
+    override.specs.pedal_to_ground[0] === override.specs.bb_height[0] - 175,
+    "pedal-to-ground uses the overriding crank length",
+    `${override.specs.pedal_to_ground[0]} vs ${override.specs.bb_height[0]} - 175`,
+  );
+  ok(
+    override.specs.bb_height[0] === global170.specs.bb_height[0],
+    "changing crank length does not change BB height",
+  );
+
+  const defaulted = computeBike(pvk2, { bikeNumber: 1, color: "darkgreen" });
+  ok(defaulted.crank_length === 165, "catalog bike without a setting uses 165 mm");
+  const expectedPedal = defaulted.specs.bb_height[0] - 165;
+  const expectedOverridePedal = override.specs.bb_height[0] - 175;
+  const two = generateSVG([
+    defaulted,
+    computeBike({ ...pvk2, crank_length: 175 }, { bikeNumber: 2, color: "darkslateblue" }),
+  ]);
+  ok(two.includes(`Pedal to Ground: ${expectedPedal} mm`), "details table lists default pedal-to-ground");
+  ok(two.includes(`Pedal to Ground: ${expectedOverridePedal} mm`), "details table lists override pedal-to-ground");
+  ok(/Crank Length: 165 mm[\s\S]*Pedal to Ground:/.test(two), "Pedal to Ground row follows Crank Length");
+  const pedalDiff = expectedOverridePedal - expectedPedal;
+  ok(two.includes(`${pedalDiff} mm`) || two.includes(`${Number(pedalDiff)} mm`), "diffs column includes the pedal-to-ground difference");
 }
 
 // Saved-bike storage helpers (pure functions; in-memory store for load/save).
@@ -392,7 +430,7 @@ ok(
     stack: 630,
     fork_offset: 44,
   });
-  ok(sample.crank_length === 165, "extractSavedBike defaults crank length");
+  ok(sample.crank_length == null, "extractSavedBike leaves a missing crank_length unset");
   const good = validateSavedBike(sample);
   ok(good.ok, "valid saved bike passes");
   const bad = validateSavedBike({ model: "Nope" });
@@ -403,7 +441,7 @@ ok(
   const json = serializeMyBikes([sample]);
   const parsed = parseMyBikesJson(json);
   ok(parsed.ok && parsed.bikes.length === 1, "round-trip serialize/parse keeps one bike");
-  ok(parsed.bikes[0].model === "My Trail" && parsed.bikes[0].crank_length === 165, "parsed bike keeps fields");
+  ok(parsed.bikes[0].model === "My Trail" && parsed.bikes[0].crank_length == null, "parsed bike keeps fields and does not invent a crank length");
 
   const mixed = parseMyBikesJson(
     JSON.stringify({
