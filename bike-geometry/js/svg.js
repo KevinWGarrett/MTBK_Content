@@ -354,13 +354,12 @@ ${list}        </text>
 }
 
 function madeBy(settings, height) {
-  const x = settings.WINDOW_WIDTH - settings.MADEBY_X_TWEAK;
+  // Right-aligned, ending one font-size in from the right edge.
+  const x = settings.WINDOW_WIDTH - settings.MADEBY_FONT_SIZE;
   const y = height - settings.MADEBY_Y_TWEAK;
   return `<!-- madeby -->
     <g transform="translate(${x},${y})">
-        <text style="font-family: ${esc(settings.FONT_FAMILY)}; font-size: ${settings.MADEBY_FONT_SIZE}px;" transform="matrix(1, 0, 0, 1, 0, 0)">
-        Bike Geometry Comparison by Mountain Biking Knowledge
-        </text>
+        <text text-anchor="end" style="font-family: ${esc(settings.FONT_FAMILY)}; font-size: ${settings.MADEBY_FONT_SIZE}px;">Bike Geometry Comparison by Mountain Biking Knowledge</text>
     </g>
         `;
 }
