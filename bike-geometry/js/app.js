@@ -13,6 +13,7 @@ import {
   DEFAULT_ALIGN,
 } from "./geometry.js";
 import { generateSVG, suggestedFilename } from "./svg.js";
+import { rasterizeSvgToPng, suggestedPngFilename, PNG_FRIENDLY_FAIL } from "./png.js";
 import {
   savedBikeName,
   extractSavedBike,
@@ -450,6 +451,7 @@ function renderPreview() {
     err.hidden = false;
     err.textContent = problems.join(" ");
     host.innerHTML = "";
+    setDownloadEnabled(false);
     return;
   }
   if (problems.length) {
@@ -461,7 +463,14 @@ function renderPreview() {
   }
   const svg = generateSVG(computed, settings);
   host.innerHTML = svg;
-  document.getElementById("btn-download").disabled = computed.length === 0;
+  setDownloadEnabled(computed.length > 0);
+}
+
+function setDownloadEnabled(on) {
+  const svgBtn = document.getElementById("btn-download");
+  const pngBtn = document.getElementById("btn-download-png");
+  if (svgBtn) svgBtn.disabled = !on;
+  if (pngBtn) pngBtn.disabled = !on;
 }
 
 function refresh({ rebuildSlots = false } = {}) {
@@ -498,6 +507,7 @@ function bind() {
   });
 
   document.getElementById("btn-download").addEventListener("click", downloadSvg);
+  document.getElementById("btn-download-png").addEventListener("click", downloadPng);
   document.getElementById("btn-share").addEventListener("click", copyShareLink);
   document.getElementById("btn-reset").addEventListener("click", () => {
     state.slots = defaultSlots();
@@ -743,36 +753,62 @@ function onSlotInput(event) {
   }
 }
 
-function downloadSvg() {
-  const { computed, settings } = currentComputed();
-  if (!computed.length) return;
-  const text = generateSVG(computed, settings);
-  const blob = new Blob([text], { type: "image/svg+xml;charset=utf-8" });
+function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = suggestedFilename(computed);
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+function downloadSvg() {
+  const { computed, settings } = currentComputed();
+  if (!computed.length) return;
+  const text = generateSVG(computed, settings);
+  const blob = new Blob([text], { type: "image/svg+xml;charset=utf-8" });
+  triggerDownload(blob, suggestedFilename(computed));
+}
+
+async function downloadPng() {
+  const { computed, settings } = currentComputed();
+  if (!computed.length) return;
+  const pngBtn = document.getElementById("btn-download-png");
+  if (pngBtn) pngBtn.disabled = true;
+  try {
+    const text = generateSVG(computed, settings);
+    const result = await rasterizeSvgToPng(text);
+    triggerDownload(result.blob, suggestedPngFilename(computed));
+  } catch (err) {
+    console.warn("PNG download failed:", err);
+    showActionStatus(err?.message || PNG_FRIENDLY_FAIL, 5000);
+  } finally {
+    const still = currentComputed();
+    if (pngBtn) pngBtn.disabled = still.computed.length === 0;
+  }
+}
+
+function showActionStatus(message, timeoutMs = 3000) {
+  const status = document.getElementById("share-status");
+  if (!status) return;
+  status.hidden = false;
+  status.textContent = message;
+  setTimeout(() => {
+    status.hidden = true;
+  }, timeoutMs);
+}
+
 async function copyShareLink() {
   writeHash();
   const url = location.href;
-  const status = document.getElementById("share-status");
   try {
     await navigator.clipboard.writeText(url);
-    status.hidden = false;
-    status.textContent = "Share link copied to the clipboard.";
+    showActionStatus("Share link copied to the clipboard.");
   } catch {
-    status.hidden = false;
-    status.textContent = "Copy the address bar — the current setup is already in the URL.";
+    showActionStatus("Copy the address bar — the current setup is already in the URL.");
   }
-  setTimeout(() => {
-    status.hidden = true;
-  }, 3000);
 }
 
 /* ---------------- Boot ---------------- */

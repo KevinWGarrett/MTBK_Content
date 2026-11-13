@@ -23,7 +23,18 @@ import {
   computeAlignmentOffsets,
   computeAlignedBikes,
 } from "../js/geometry.js";
-import { generateSVG } from "../js/svg.js";
+import { generateSVG, suggestedFilename } from "../js/svg.js";
+import {
+  parseSvgSize,
+  pngScaleForSize,
+  prepareSvgForRaster,
+  pngFilenameFromSvg,
+  suggestedPngFilename,
+  svgToDataUrl,
+  PNG_DEFAULT_SCALE,
+  PNG_MAX_PIXELS,
+  PNG_MAX_SIDE,
+} from "../js/png.js";
 import {
   savedBikeName,
   uniqueName,
@@ -495,6 +506,66 @@ ok(
   ok(near(aligned.computed[0].specs.wheelbase[0], unshifted.specs.wheelbase[0]), "alignment does not change wheelbase");
   ok(near(aligned.computed[0].specs.bb_height[0], unshifted.specs.bb_height[0]), "alignment does not change BB height");
   ok(near(aligned.computed[0].specs.reach[0], unshifted.specs.reach[0]), "alignment does not change reach");
+}
+
+
+/* ---------------- PNG helpers ---------------- */
+{
+  const sized = `<svg style="zoom: 0.4;" width="2600" height="2545" xmlns="http://www.w3.org/2000/svg"></svg>`;
+  const size = parseSvgSize(sized);
+  ok(size && size.width === 2600 && size.height === 2545, "parseSvgSize reads width and height, ignoring zoom");
+  ok(parseSvgSize(`<svg width="800px" height="600px"></svg>`).height === 600, "parseSvgSize accepts a px unit");
+  ok(parseSvgSize(`<svg viewBox="0 0 10 10"></svg>`) === null, "parseSvgSize returns null without width/height");
+  ok(parseSvgSize("") === null && parseSvgSize("<div></div>") === null, "parseSvgSize returns null for non-SVG text");
+
+  ok(pngScaleForSize(2600, 2545) === PNG_DEFAULT_SCALE, "default drawing uses 2x scale");
+  ok(pngScaleForSize(100, 100, { scale: 2, maxPixels: 10000, maxSide: 8192 }) === 1, "pixel cap reduces scale to 1 when 2x would exceed it");
+  const huge = pngScaleForSize(8000, 8000);
+  ok(huge < 1 && huge >= 0.25, "huge canvases scale below 1x rather than failing", `scale=${huge}`);
+  ok(pngScaleForSize(20000, 20000) * 20000 <= PNG_MAX_SIDE + 1e-6, "side cap keeps each edge at or under PNG_MAX_SIDE");
+  ok(pngScaleForSize(0, 10) === 1 && pngScaleForSize(-1, 10) === 1, "invalid sizes fall back to scale 1");
+
+  const prepared = prepareSvgForRaster(sized);
+  ok(!/zoom\s*:/i.test(prepared), "prepareSvgForRaster strips the zoom style");
+  ok(/<svg\b[^>]*width="2600"/.test(prepared) && /height="2545"/.test(prepared), "prepareSvgForRaster keeps width and height");
+  ok(/xmlns="http:\/\/www.w3.org\/2000\/svg"/.test(prepared), "prepareSvgForRaster keeps the SVG namespace");
+  const already = prepareSvgForRaster(`<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg"></svg>`);
+  ok(already.startsWith("<svg width="), "prepareSvgForRaster leaves a zoom-free SVG intact");
+  const noNs = prepareSvgForRaster(`<svg width="10" height="10"></svg>`);
+  ok(/<svg xmlns="http:\/\/www.w3.org\/2000\/svg" width="10"/.test(noNs) || /<svg[^>]*xmlns=/.test(noNs), "prepareSvgForRaster adds a missing xmlns");
+
+  ok(pngFilenameFromSvg("megatower-2-l-vs-turbo-levo-4-s4.svg") === "megatower-2-l-vs-turbo-levo-4-s4.png", "png filename swaps .svg for .png");
+  ok(pngFilenameFromSvg("drawing.SVG") === "drawing.png", "png filename swap is case-insensitive");
+  ok(pngFilenameFromSvg("drawing") === "drawing.png" && pngFilenameFromSvg("") === "bike-geometry.png", "png filename handles missing extensions");
+  ok(pngFilenameFromSvg("already.png") === "already.png", "png filename leaves .png alone");
+
+  const url = svgToDataUrl(`<svg width="1" height="1"><rect fill="url(#grid)"/></svg>`);
+  ok(url.startsWith("data:image/svg+xml;charset=utf-8,"), "data URL uses the SVG MIME type");
+  ok(!url.includes("#grid"), "data URL encodes # so url(#grid) is not treated as a fragment");
+  ok(url.includes("%23grid") || decodeURIComponent(url.split(",")[1]).includes("url(#grid)"), "encoded data URL still contains the grid fill");
+
+  // Exercise the helpers on a real generated drawing.
+  if (typeof pvk2 !== "undefined" && pvk2) {
+    const drawn = generateSVG([
+      computeBike(pvk2, { bikeNumber: 1, color: DEFAULTS.COLORS[0] }),
+    ]);
+    ok(/style="zoom:/.test(drawn), "generated SVG includes a zoom style to strip");
+    const ready = prepareSvgForRaster(drawn);
+    ok(!/zoom\s*:/i.test(ready), "zoom is removed from a generated SVG");
+    const measured = parseSvgSize(ready);
+    ok(measured && measured.width === (drawn.match(/width="(\d+)"/) || [])[1] * 1, "raster size matches the generated width");
+    ok(!/style="zoom:/.test(ready) && /viewBox=/.test(ready), "viewBox is unchanged after preparing for raster");
+    const name = suggestedPngFilename([pvk2]);
+    ok(name.endsWith(".png") && name === suggestedFilename([pvk2]).replace(/\.svg$/i, ".png"), "suggested PNG name tracks the SVG name");
+    const scaled = pngScaleForSize(measured.width, measured.height);
+    ok(
+      measured.width * scaled <= PNG_MAX_SIDE &&
+        measured.height * scaled <= PNG_MAX_SIDE &&
+        measured.width * measured.height * scaled * scaled <= PNG_MAX_PIXELS + 1,
+      "default generated drawing stays within the PNG caps at the chosen scale",
+      `size=${measured.width}x${measured.height} scale=${scaled}`,
+    );
+  }
 }
 
 // Default K2 vs K3 sample used later by the build

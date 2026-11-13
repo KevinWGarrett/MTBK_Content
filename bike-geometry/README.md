@@ -1,6 +1,6 @@
 # Bike Geometry Comparison
 
-A static web page that draws up to three bicycles to scale from their geometry numbers, overlays them, and lets you download the result as an SVG. It is a JavaScript port of Kevin Garrett’s Python *Bike Geometry SVG* project, prepared so it can be hosted on GitHub Pages.
+A static web page that draws up to three bicycles to scale from their geometry numbers, overlays them, and lets you download the result as an SVG or a PNG. It is a JavaScript port of Kevin Garrett’s Python *Bike Geometry SVG* project, prepared so it can be hosted on GitHub Pages.
 
 There is no build step and no framework. The page is plain HTML, CSS, and vanilla JavaScript (ES modules). Opening it through a static file server is enough.
 
@@ -11,7 +11,7 @@ There is no build step and no framework. The page is plain HTML, CSS, and vanill
 3. Pick a colour for each bike. Use **Align bikes at** to line every bike up, fore-aft, on the bottom bracket (the default), the rear wheel hub, or the front wheel hub. Vertical position is unchanged: all bikes share the same ground line.
 4. The drawing, labels, and spec / difference blocks update as you edit. Differences are shown as bike *N* minus bike 1, under the heading `Diffs (N-1)`.
 5. In the custom form you can set **crank length** (the original Python default is 165 mm; catalog bikes use that when they omit the field) and **Save to My bikes**. Saved bikes stay in this browser only — use **Export My bikes** to download a JSON backup, and **Import My bikes** to merge one back in. Clearing site or browser data removes them. A share link embeds the full geometry, so someone else can open it without your saved list.
-6. **Download SVG** saves the current drawing. **Copy share link** copies a URL with the current bikes, alignment, colors, custom or saved geometry, and drawing settings in the hash (`#...`), so you can bookmark or send it. Older links that carried a per-bike X offset still load; the offset is ignored and the bikes are aligned at the bottom bracket.
+6. **Download SVG** saves the current drawing as vector art. **Download PNG** saves a raster image of the same drawing — white background, grid, text, and the current blend mode (hard-light by default) — at twice the SVG’s pixel size when that is reasonable, so it stays sharp. The file uses the same name as the SVG, with a `.png` suffix. If the browser cannot build the PNG, a short message is shown and you can still use the SVG. **Copy share link** copies a URL with the current bikes, alignment, colors, custom or saved geometry, and drawing settings in the hash (`#...`), so you can bookmark or send it. Older links that carried a per-bike X offset still load; the offset is ignored and the bikes are aligned at the bottom bracket.
 7. **Drawing settings** (blend mode, canvas size, ground line, download zoom) stay at the original project defaults unless you change them. The canvas widens automatically if an alignment would otherwise clip a bike.
 
 Units on the form: millimetres for lengths, degrees for head and seat-tube angles, inches for wheel diameters (the same convention as the original Python data). Invalid fields show a short message and that bike is left out of the drawing until the numbers are valid.
@@ -75,9 +75,10 @@ Shareable links use the URL hash only (nothing is sent to a server). Anyone with
 - `js/geometry.js` — pure math (frame points, wheels, specs, and alignment offsets)
 - `js/svg.js` — SVG markup
 - `js/app.js` — catalog, form, My bikes, live preview, hash, download
+- `js/png.js` — SVG-to-PNG helpers (size, scale cap, and browser rasterization)
 - `js/storage.js` — saved-bike serialize, validate, import merge, and localStorage access
 - `bikes/bikes.json` — catalog
-- `tests/compare.mjs` — compares JS results to a patched Python reference, plus crank-length, alignment, and storage helper checks
+- `tests/compare.mjs` — compares JS results to a patched Python reference, plus crank-length, alignment, storage, and PNG-helper checks
 
 To run the comparison tests you need Node and the patched Python copy living next to this folder (`../py-fixed`). From this directory:
 
