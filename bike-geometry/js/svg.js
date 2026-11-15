@@ -497,11 +497,11 @@ export function generateSVG(computedBikes, settings = {}) {
 <title id="svg_document_title">Bike Geometry Visual Comparator</title>
 <defs id="svg_document_defs">
     <pattern id="tenthGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-        <path d="M 10 0 L 0 0 0 10" fill="none" stroke="red" stroke-width="1"/>
+        <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#0f6e33" stroke-width="1"/>
     </pattern>
     <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
         <rect width="100" height="100" fill="url(#tenthGrid)"/>
-        <path d="M 100 0 L 0 0 0 100" fill="none" stroke="red" stroke-width="1"/>
+        <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#0f6e33" stroke-width="1"/>
     </pattern>
 </defs>
 
