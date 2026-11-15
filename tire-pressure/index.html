@@ -29,8 +29,13 @@
   .res .psi{font-size:2.6rem;font-weight:700;color:var(--accent);line-height:1.1;margin-top:4px}
   .res .psi small{font-size:1rem;font-weight:500;color:var(--muted)}
   .res .bar{color:var(--muted);margin-top:2px}
-  .warn{color:var(--warn);font-size:.85rem;margin-top:8px;min-height:1.1em}
+  .warn{color:var(--warn);font-size:.9rem;font-weight:700;margin-top:8px;min-height:1.1em}
   .note{color:var(--muted);font-size:.85rem;margin-top:14px}
+  .tips{margin:0;padding-left:1.2em;font-size:.95rem}
+  .tips li{margin:0 0 8px}
+  .tips li:last-child{margin-bottom:0}
+  .fine{color:var(--muted);font-size:.78rem;padding:4px 20px 0}
+  .fine p{margin:0 0 6px}
   details{color:var(--muted);font-size:.8rem;margin-top:8px}
   @media (max-width:620px){.tires,.results{grid-template-columns:1fr}}
 </style>
@@ -87,7 +92,7 @@
           <option value="Hooks">Hooked tubeless rim</option>
           <option value="Hookless">Hookless tubeless rim</option>
         </select></div>
-      <div><label for="rim">Inner rim width (mm)</label><input id="rim" type="number" min="19" max="40" step="1" value="30"></div>
+      <div><label for="rim">Inner rim width (mm)</label><input id="rim" type="number" min="21" max="40" step="1" value="30"></div>
     </div>
     <div class="warn" id="warn"></div>
   </section>
@@ -98,10 +103,22 @@
       <div class="res"><div class="lbl">Front</div><div class="psi" id="outF">–</div><div class="bar" id="outFb"></div></div>
       <div class="res"><div class="lbl">Rear</div><div class="psi" id="outR">–</div><div class="bar" id="outRb"></div></div>
     </div>
-    <p class="note">Reconstructed from SRAM's AXS tire pressure guide (for Zipp wheels); not SRAM's official tool.
-      A starting point only: never exceed the tire's or rim's maximum pressure.</p>
-    <p class="note">SRAM's guide labels these rim types Tubes (Crochet), Hooks (Tubeless Crochet), and Hookless (Tubeless Straight Side).</p>
   </section>
+  <section class="card">
+    <h2>Notes</h2>
+    <ul class="tips">
+      <li>Wider tires and wider rims both call for less pressure, and rim width matters more than most riders think. Each 5 mm of inner rim width is worth about 1 to 1.3 psi at trail-bike pressures.</li>
+      <li>More weight calls for more pressure, but doubling the weight does not double the pressure.</li>
+      <li>Tougher casings hold their shape, so they can run 5–10% less pressure.</li>
+      <li>Tubes need a little more pressure than tubeless to avoid pinch flats, and hookless rims a little less.</li>
+      <li>Wet trails call for 10% less pressure.</li>
+    </ul>
+  </section>
+  <footer class="fine">
+    <p>Reconstructed from SRAM's AXS tire pressure guide (for Zipp wheels); not SRAM's official tool.
+      A starting point only: never exceed the tire's or rim's maximum pressure.</p>
+    <p>SRAM's guide labels these rim types Tubes (Crochet), Hooks (Tubeless Crochet), and Hookless (Tubeless Straight Side).</p>
+  </footer>
 </main>
 
 <script>
@@ -188,9 +205,9 @@ function tireFitsRim(wmm, rim){
 }
 function update(){
   const rider=parseFloat($("rider").value), bike=parseFloat($("bike").value), rim=parseFloat($("rim").value);
-  const ok = rider>0 && bike>0 && rim>=19 && rim<=40;
+  const ok = rider>0 && bike>0 && rim>=21 && rim<=40;
   if(!ok){ ["outF","outR"].forEach(i=>$(i).textContent="–"); ["outFb","outRb"].forEach(i=>$(i).textContent="");
-           $("warn").textContent="Enter weights and an inner rim width between 19 and 40 mm."; return; }
+           $("warn").textContent="Enter weights and an inner rim width between 21 and 40 mm."; return; }
   const base = {style:$("style").value, surface:$("surface").value, riderKg:toKg(rider,units), bikeKg:toKg(bike,units),
                 diameter:$("diam").value, rimType:$("rimType").value, rimMM:rim};
   const f = pressurePsi({...base, position:"front", casing:$("casF").value, width:$("widF").value});
@@ -200,7 +217,7 @@ function update(){
   const bad = [];
   if(!tireFitsRim(widthMM($("widF").value), rim)) bad.push("front");
   if(!tireFitsRim(widthMM($("widR").value), rim)) bad.push("rear");
-  $("warn").textContent = bad.length ? `The ${bad.join(" and ")} tire width is outside the usual range for a ${rim} mm rim.` : "";
+  $("warn").textContent = bad.length ? (bad.length===2 ? `The front and rear tire widths are` : `The ${bad[0]} tire width is`) + ` outside the usual range for a ${rim} mm rim.` : "";
 }
 
 $("style").addEventListener("change", e=>{ applyStyle(e.target.value); update(); });
