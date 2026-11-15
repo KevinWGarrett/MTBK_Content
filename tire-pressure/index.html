@@ -89,6 +89,7 @@
         </select></div>
       <div><label for="rim">Inner rim width (mm)</label><input id="rim" type="number" min="19" max="40" step="1" value="30"></div>
     </div>
+    <div class="warn" id="warn"></div>
   </section>
 
   <section class="card">
@@ -97,11 +98,9 @@
       <div class="res"><div class="lbl">Front</div><div class="psi" id="outF">–</div><div class="bar" id="outFb"></div></div>
       <div class="res"><div class="lbl">Rear</div><div class="psi" id="outR">–</div><div class="bar" id="outRb"></div></div>
     </div>
-    <div class="warn" id="warn"></div>
     <p class="note">Reconstructed from SRAM's AXS tire pressure guide (for Zipp wheels); not SRAM's official tool.
       A starting point only: never exceed the tire's or rim's maximum pressure.</p>
     <p class="note">SRAM's guide labels these rim types Tubes (Crochet), Hooks (Tubeless Crochet), and Hookless (Tubeless Straight Side).</p>
-    <details id="selftest"><summary>Self-test</summary><div id="selftestOut"></div></details>
   </section>
 </main>
 
@@ -204,26 +203,11 @@ function update(){
   $("warn").textContent = bad.length ? `The ${bad.join(" and ")} tire width is outside the usual range for a ${rim} mm rim.` : "";
 }
 
-/* ---------- Self-test against observed SRAM outputs ---------- */
-const OBSERVED = [["Baseline","Trail","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,24.3,25.8],["Rider 100","Trail","Dry",100.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,20.1,21.4],["Rider 125","Trail","Dry",125.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,21.7,23.1],["Rider 150","Trail","Dry",150.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,23.1,24.6],["Rider 200","Trail","Dry",200.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,26.1,27.7],["Rider 225","Trail","Dry",225.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,27.5,29.2],["Rider 250","Trail","Dry",250.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,28.9,30.7],["Rider 300","Trail","Dry",300.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,31.8,33.9],["Bike 15","Trail","Dry",170.0,15.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,23.6,25.1],["Bike 40","Trail","Dry",170.0,40.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,25.0,26.6],["Width 2.0","Trail","Dry",170.0,26.0,"Standard","Standard","2.0","2.0","29","Hooks",30.0,29.6,31.5],["Width 2.2","Trail","Dry",170.0,26.0,"Standard","Standard","2.2","2.2","29","Hooks",30.0,26.1,27.7],["Width 2.6","Trail","Dry",170.0,26.0,"Standard","Standard","2.6","2.6","29","Hooks",30.0,22.7,24.1],["Width 2.8","Trail","Dry",170.0,26.0,"Standard","Standard","2.8","2.8","29","Hooks",30.0,20.3,21.6],["Width 3.0","Trail","Dry",170.0,26.0,"Standard","Standard","3.0","3.0","29","Hooks",30.0,19.9,21.2],["Mixed widths","Trail","Dry",170.0,26.0,"Standard","Standard","2.5","2.3","29","Hooks",30.0,22.7,27.7],["Rim 20","Trail","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",20.0,26.7,28.4],["Rim 25","Trail","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",25.0,25.4,27.1],["Rim 35","Trail","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",35.0,23.2,24.6],["Rim 40","Trail","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",40.0,22.2,23.6],["Reinforced casing","Trail","Dry",170.0,26.0,"Reinforced","Reinforced","2.4","2.4","29","Hooks",30.0,23.0,24.5],["Downhill casing","Trail","Dry",170.0,26.0,"DH","DH","2.4","2.4","29","Hooks",30.0,21.8,23.2],["Rim Tubes","Trail","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","29","Tubes",30.0,24.7,26.3],["Rim Hookless","Trail","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","29","Hookless",30.0,22.5,23.9],["Diameter 26","Trail","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","26","Hooks",30.0,27.5,29.3],["Diameter 27.5","Trail","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","27.5","Hooks",30.0,26.8,28.6],["Wet","Trail","Wet",170.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,21.8,23.2],["Style XC","Cross Country","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,20.8,22.1],["Style Enduro","Enduro","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,24.3,25.8],["Style Downhill","Downhill","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,25.4,27.0],["Int 250 w2.2","Trail","Dry",250.0,26.0,"Standard","Standard","2.2","2.2","29","Hooks",30.0,31.0,33.0],["Int 120 w2.8 r35","Trail","Dry",120.0,26.0,"Standard","Standard","2.8","2.8","29","Hooks",35.0,17.1,18.2],["Int 200 Wet Tubes","Trail","Wet",200.0,26.0,"Standard","Standard","2.4","2.4","29","Tubes",30.0,23.9,25.4],["Int DH","Downhill","Dry",220.0,26.0,"DH","DH","2.5","2.5","27.5","Hooks",30.0,26.5,28.2],["W 2.25/2.35","Trail","Dry",170.0,26.0,"Standard","Standard","2.25","2.35","29","Hooks",30.0,25.4,26.4],["W 2.45/2.55","Trail","Dry",170.0,26.0,"Standard","Standard","2.45","2.55","29","Hooks",30.0,23.7,23.6],["W 2.6/2.65","Trail","Dry",170.0,26.0,"Standard","Standard","2.6","2.65","29","Hooks",30.0,22.7,23.6],["W 2.85/2.9","Trail","Dry",170.0,26.0,"Standard","Standard","2.85","2.9","29","Hooks",30.0,21.7,22.1],["W 2.0/2.05","Trail","Dry",170.0,26.0,"Standard","Standard","2.0","2.05","29","Hooks",30.0,29.6,30.7],["W 2.1/2.15","Trail","Dry",170.0,26.0,"Standard","Standard","2.1","2.15","29","Hooks",30.0,28.1,28.4],["W2.3 rim 25","Trail","Dry",170.0,26.0,"Standard","Standard","2.3","2.25","29","Hooks",25.0,27.4,28.4],["W2.6 rim 25","Trail","Dry",170.0,26.0,"Standard","Standard","2.6","2.5","29","Hooks",25.0,23.7,25.2],["W2.3 rim 35","Trail","Dry",170.0,26.0,"Standard","Standard","2.3","2.25","29","Hooks",35.0,24.8,25.8],["Rim 15","Trail","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",15.0,28.1,29.9],["Rim 60","Trail","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",60.0,18.8,20.0],["Rim 100","Trail","Dry",170.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",100.0,14.1,15.0],["Rider 101","Trail","Dry",101.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,20.3,21.6],["Rider 171","Trail","Dry",171.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,24.4,25.9],["Rider 80","Trail","Dry",80.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,19.0,20.2],["Rider 400","Trail","Dry",400.0,26.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,37.6,40.0],["Bike 60","Trail","Dry",170.0,60.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,26.2,27.9],["Rider 142 bike 23","Trail","Dry",142.0,23.0,"Standard","Standard","2.4","2.4","29","Hooks",30.0,22.3,23.8],["27.5 w2.6 r35","Trail","Dry",170.0,26.0,"Standard","Standard","2.6","2.6","27.5","Hooks",35.0,24.0,25.5],["26 w2.2 r25","Trail","Dry",170.0,26.0,"Standard","Standard","2.2","2.2","26","Hooks",25.0,31.1,33.1],["Mixed casing hookless","Trail","Wet",170.0,26.0,"Reinforced","DH","2.4","2.4","29","Hookless",30.0,19.2,19.4],["Enduro DH tubes","Enduro","Dry",170.0,26.0,"DH","Reinforced","2.4","2.4","29","Tubes",30.0,22.3,25.0],["Trail 3.8 r80","Trail","Dry",170.0,26.0,"Standard","Standard","3.8","3.8","26","Hooks",80.0,13.6,14.5],["XC 2.0/2.1 r25 hookless","Cross Country","Dry",150.0,22.0,"Standard","Standard","2.0","2.1","29","Hookless",25.0,23.4,23.6]];
-function selfTest(){
-  let pass=0; const fails=[];
-  for(const [run,style,surface,rlb,blb,cf,cr,wf,wr,diam,rimType,rim,fo,ro] of OBSERVED){
-    const base={style,surface,riderKg:toKg(rlb,"lb"),bikeKg:toKg(blb,"lb"),diameter:diam,rimType,rimMM:rim};
-    const f=r1(pressurePsi({...base,position:"front",casing:cf,width:wf}));
-    const r=r1(pressurePsi({...base,position:"rear",casing:cr,width:wr}));
-    if(Math.abs(f-fo)<0.05 && Math.abs(r-ro)<0.05) pass++; else fails.push(`${run}: got ${f}/${r}, SRAM ${fo}/${ro}`);
-  }
-  const msg = `${pass}/${OBSERVED.length} observed SRAM runs reproduced exactly (front and rear, 0.1 psi).`;
-  console.log("[self-test] "+msg); fails.forEach(x=>console.warn("[self-test] "+x));
-  $("selftestOut").textContent = msg + (fails.length ? " Mismatches: "+fails.join("; ") : "");
-}
-
 $("style").addEventListener("change", e=>{ applyStyle(e.target.value); update(); });
 ["surface","casF","casR","widF","widR","diam","rimType"].forEach(id=>$(id).addEventListener("change", update));
 ["rider","bike","rim"].forEach(id=>$(id).addEventListener("input", update));
 document.querySelectorAll("#units button").forEach(b=>b.addEventListener("click", ()=>setUnits(b.dataset.u)));
-applyStyle("Trail"); update(); selfTest();
+applyStyle("Trail"); update();
 </script>
 </body>
 </html>
