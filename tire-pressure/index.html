@@ -3,20 +3,159 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MTBK Tire Pressure Calculator</title>
+<title>MTBK Tire Pressure Calculator | Mountain Biking Knowledge</title>
+<meta name="description" content="Starting-point front and rear tire pressures for mountain bikes, from the book Mountain Biking Knowledge by Kevin Garrett.">
+<style id="mtbk-brand">
+/* BRAND-START (synced from css/mtbk-brand.css) */
+/* Mountain Biking Knowledge companion site: shared brand theme.
+   Tokens, site bar, buttons and footer used by every page. */
+
+:root {
+  --bg: #eef1f5;            /* page background: light, cool gray */
+  --surface: #fff;          /* cards and panels */
+  --ink: #1b2430;           /* body text: cool slate */
+  --ink-muted: #5b6675;
+  --line: #d8dee7;
+  --line-strong: #b9c2cf;
+  --accent: #1f5c42;        /* forest green: buttons, links, results */
+  --accent-hover: #174a35;
+  --accent-soft: #e3efe8;
+  --nav: #13251e;           /* deep forest: site bar, hero, footer */
+  --nav-2: #1b3a2d;
+  --lime: #82e323;          /* from the book's wordmark: use on dark only */
+  --danger: #8b2e2e;
+  --danger-soft: #f8eaea;
+  --shadow: 0 1px 2px rgba(20, 35, 45, 0.06), 0 8px 24px rgba(20, 35, 45, 0.07);
+  --radius: 12px;
+  --font: system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+.mtbk-bar {
+  background: var(--nav);
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.mtbk-bar-inner {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 0.7rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.mtbk-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.mtbk-brand svg { flex: none; }
+.mtbk-brand small {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lime);
+}
+.mtbk-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  font-family: var(--font);
+}
+.mtbk-nav a {
+  color: #d6e2db;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+}
+.mtbk-nav a:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+.mtbk-nav a[aria-current="page"] { color: #fff; background: rgba(255, 255, 255, 0.14); }
+.mtbk-nav a:focus-visible,
+.mtbk-brand:focus-visible,
+.mtbk-footer a:focus-visible { outline: 3px solid var(--lime); outline-offset: 2px; }
+.mtbk-nav a.nav-buy {
+  background: var(--lime);
+  color: #10200a;
+  margin-left: 0.4rem;
+}
+.mtbk-nav a.nav-buy:hover { background: #9aee4a; color: #10200a; }
+
+.btn-buy,
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0.75rem 1.4rem;
+  border-radius: 999px;
+  min-height: 3rem;
+  border: 2px solid transparent;
+}
+.btn-buy { background: var(--lime); color: #10200a; }
+.btn-buy:hover { background: #9aee4a; }
+.btn-buy.on-light { background: var(--accent); color: #fff; }
+.btn-buy.on-light:hover { background: var(--accent-hover); }
+.btn-ghost { color: #fff; border-color: rgba(255, 255, 255, 0.45); }
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff; }
+.btn-buy:focus-visible, .btn-ghost:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; }
+.btn-buy.on-light:focus-visible { outline-color: var(--accent); }
+
+.mtbk-footer {
+  background: var(--nav);
+  color: #b9cbc1;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  margin-top: 2.5rem;
+}
+.mtbk-footer-inner {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.mtbk-footer p { margin: 0; }
+.mtbk-footer strong { color: #fff; }
+.mtbk-footer a { color: var(--lime); font-weight: 600; text-decoration: none; }
+.mtbk-footer a:hover { text-decoration: underline; }
+.mtbk-footer nav { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+
+@media (max-width: 640px) {
+  .mtbk-bar-inner { padding: 0.6rem 1rem; }
+  .mtbk-nav a { padding: 0.4rem 0.6rem; font-size: 0.88rem; }
+}
+/* BRAND-END */
+</style>
 <style>
-  :root{--ink:#1f2933;--muted:#616e7c;--line:#d9e2ec;--bg:#f5f7fa;--card:#fff;--accent:#2f6f4f;--warn:#9a5b00}
+  :root{--muted:var(--ink-muted);--card:var(--surface);--warn:#9a5b00}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 var(--font)}
   main{max-width:860px;margin:0 auto;padding:28px 18px 40px}
   h1{font-size:1.55rem;margin:0 0 4px}
   .sub{color:var(--muted);margin:0 0 22px;font-size:.95rem}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:18px 20px;margin-bottom:16px}
   .card h2{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px 16px}
   label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:4px}
   select,input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
-  select:focus,input:focus{outline:2px solid #9fc5b0;border-color:var(--accent)}
+  select:focus,input:focus{outline:2px solid #8fbba5;border-color:var(--accent)}
   .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
   .seg button{border:0;background:#fff;padding:7px 14px;font:inherit;cursor:pointer;color:var(--muted)}
   .seg button.on{background:var(--accent);color:#fff}
@@ -24,7 +163,7 @@
   .tires h3{margin:0 0 8px;font-size:1rem}
   .tires .grid{grid-template-columns:1fr 1fr}
   .results{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .res{border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center;background:#fbfdfc}
+  .res{border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center;background:#f6faf8}
   .res .lbl{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
   .res .psi{font-size:2.6rem;font-weight:700;color:var(--accent);line-height:1.1;margin-top:4px}
   .res .psi small{font-size:1rem;font-weight:500;color:var(--muted)}
@@ -52,9 +191,21 @@
   @media (max-width:620px){.tires,.results{grid-template-columns:1fr}
     .tires .grid label{min-height:2.9em;display:flex;align-items:flex-end}
     .tires .grid .rowstart label,.tires .grid .rowfull label{min-height:0}}
+  .illo.photo85{width:85%;margin-left:auto;margin-right:auto}
 </style>
 </head>
 <body>
+<header class="mtbk-bar">
+  <div class="mtbk-bar-inner">
+    <a class="mtbk-brand" href="../"><svg width='30' height='30' viewBox='0 0 16 16' aria-hidden='true'><circle cx='4' cy='12' r='2.5' fill='none' stroke='#82e323' stroke-width='1.4'/><circle cx='12' cy='12' r='2.5' fill='none' stroke='#82e323' stroke-width='1.4'/><path d='M4 12 L7 6 L11 6 L12 12 M7 6 L6 3 M11 6 L9 12' fill='none' stroke='#82e323' stroke-width='1.2' stroke-linejoin='round'/></svg><span>Mountain Biking Knowledge<small>Book companion site</small></span></a>
+    <nav class="mtbk-nav" aria-label="Site">
+      <a href="../">Home</a>
+      <a href="../tire-pressure/" aria-current="page">Tire Pressure</a>
+      <a href="../bike-geometry/">Bike Geometry</a>
+      <a class="nav-buy" href="https://www.amazon.com/dp/B0FX9PPZMJ" target="_blank" rel="noopener">Get the book</a>
+    </nav>
+  </div>
+</header>
 <main class="inch" id="app">
   <h1>MTBK Tire Pressure Calculator</h1>
   <p class="sub">Starting-point tire pressures for mountain bikes.</p>
@@ -131,9 +282,10 @@
   </section>
   <section class="card">
     <h3 class="subhead first">ETRTO Sizing</h3>
-    <p class="notep">ETRTO is a tire sizing standard from the <em>European Tyre and Rim Technical Organisation</em>. It gives a tire's size as two numbers in millimeters, width first and bead seat diameter second. So 62-584 means a tire about 62 mm wide that fits a rim with a 584 mm bead seat diameter.</p>
-    <p class="notep">The first number is the tire width—the tire's nominal width on a typical rim, so 62 mm is roughly a 2.4". It's the inch width converted to millimeters, give or take rounding. A tire's real width changes with the rim, and a wider inner rim spreads it out a little.</p>
+    <p class="notep">ETRTO is a tire sizing standard from the <em>European Tyre and Rim Technical Organisation</em>. It gives a tire's size as two numbers in millimeters, width first and bead seat diameter second. So 70-584 means a tire about 70 mm wide that fits a rim with a 584 mm bead seat diameter.</p>
+    <p class="notep">The first number is the tire width—the tire's nominal width on a typical rim, so 70 mm is roughly a 2.8". It's the inch width converted to millimeters, give or take rounding. A tire's real width changes with the rim, and a wider inner rim spreads it out a little.</p>
     <p class="notep">The second number tells you exactly which rim diameter a tire fits, which inch sizes don't always do. The three common MTB sizes are 559 for 26", 584 for 27.5" and 622 for 29". Any tire and rim with the same bead seat number fit each other, whatever the inch label says.</p>
+    <img class="illo photo85" src="images/photo-tire-rim-size.jpg" alt="Tire sidewall marked 70-584 (27.5x2.80) on a Bulls rim labeled ETRTO rim size 584x35c" loading="lazy">
     <img class="illo" src="illo-rim-types.png" alt="Cross-sections of a hooked tubeless rim, a hookless tubeless rim, and a hooked rim with a tube (clincher)" loading="lazy">
     <h3 class="subhead">Notes</h3>
     <ul class="tips">
@@ -150,6 +302,18 @@
     <p>SRAM's guide labels these rim types Tubes (Crochet), Hooks (Tubeless Crochet), and Hookless (Tubeless Straight Side).</p>
   </footer>
 </main>
+
+<footer class="mtbk-footer">
+  <div class="mtbk-footer-inner">
+    <p><strong>Mountain Biking Knowledge</strong> by Kevin Garrett. These tools are companions to the book.</p>
+    <nav aria-label="Footer">
+      <a href="../">Home</a>
+      <a href="../tire-pressure/">Tire Pressure</a>
+      <a href="../bike-geometry/">Bike Geometry</a>
+      <a href="https://www.amazon.com/dp/B0FX9PPZMJ" target="_blank" rel="noopener">Buy the book on Amazon</a>
+    </nav>
+  </div>
+</footer>
 
 <script>
 "use strict";
